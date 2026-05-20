@@ -12,32 +12,32 @@ while opcao != 4:
             match escolha:
                 #Cadastrar Pedido(s)
                 case 1:
-                    print('a')
+                    print("alalalalallalalalalalallala")
                     input('Precione enter para voltar à tela inicial! ')
                     continue
                 #Editar Pedido(s)
                 case 2:
-                    print('a')
+                    
                     input('Precione enter para voltar à tela inicial! ')
                     continue
                 #Consultar Pedido(s)
                 case 3:
-                    print('a')
+                    
                     input('Precione enter para voltar à tela inicial! ')
                     continue
                 #Gerenciar Pedido(s)
                 case 4:
-                    print('a')
+                    
                     input('Precione enter para voltar à tela inicial! ')
                     continue
                 #Cancelar Pedido(s)
                 case 5:
-                    print('a')
+                    
                     input('Precione enter para voltar à tela inicial! ')
                     continue
                 #Voltar a tela inicial 
                 case 6:
-                    print('a')
+                    
                     input('Precione enter para voltar à tela inicial! ')
                     continue
         case 2:
