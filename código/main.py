@@ -1,4 +1,6 @@
 import menu
+import os
+import funcoesEntregadores
 opcao = 1
 while opcao != 4:
     menu.menuInicial()
@@ -43,6 +45,22 @@ while opcao != 4:
         case 2:
             menu.menuEntregadores()
             escolha1 = int(input('Digita a sua escolha: '))
+            match escolha1:
+                case 1:
+                    os.system('cls')
+                    print('''
+================================
+      Cadastrar Entregador
+================================  
+                ''')
+                    id = funcoesEntregadores.gerar_idEntreg()
+                    nome = str(input('Digite o nome do entregador: '))
+                    cpf = str(input('Digite o cpf do entregador: '))
+                    veiculo = str(input('Digite o veículo que o entregador usará'))
+                    disponibilidade = 'Disponível'
+
+                    funcoesEntregadores.cadastrarEntrg(id, nome, cpf, veiculo, disponibilidade)
+
         case 3:
             menu.menuOperacoes()
             escolha2 = int(input('Digita a sua escolha: '))
