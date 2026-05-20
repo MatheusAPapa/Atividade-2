@@ -1,4 +1,6 @@
 import menu
+import funcoesPedidos
+
 opcao = 1
 while opcao != 4:
     menu.menuInicial()
@@ -12,8 +14,20 @@ while opcao != 4:
             match escolha:
                 #Cadastrar Pedido(s)
                 case 1:
-                    print("alalalalallalalalalalallala")
-                    input('Precione enter para voltar à tela inicial! ')
+                    print('''
+================================
+     Cadastro do Pedido
+================================
+                    ''')
+                    idPedido = funcoesPedidos.gerar_idPedido()
+                    nomeCliente = input("Digite o nome do cliente: ")
+                    produto = input("Qual o produto: ")
+                    endereco = input("Digite o endereço: ")
+                    prioridade = input("Qual a prioridade do pedido(Alta,Normal): ")
+                    descricao = input("Dê uma descrição do produto: ")
+                    status = 'Pendente'
+                    input('Precione Enter para concluir o cadastro.')
+
                     continue
                 #Editar Pedido(s)
                 case 2:
