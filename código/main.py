@@ -1,4 +1,5 @@
 import menu
+import os
 opcao = 1
 while opcao != 4:
     menu.menuInicial()
@@ -15,11 +16,29 @@ while opcao != 4:
                     print('a')
                     input('Precione enter para voltar à tela inicial! ')
                     continue
+
                 #Editar Pedido(s)
                 case 2:
-                    print('a')
-                    input('Precione enter para voltar à tela inicial! ')
-                    continue
+                    from banco import pedidos
+
+                    os.system('cls')
+                    print('''
+==================================
+       Edição de pedidos 
+==================================
+                            ''')
+
+                    listar = input('Deseja listar todos os pedidos? (S/N)').upper().strip()
+                    if listar == 'S':
+                        for i in pedidos:
+                            print(i)
+                        pedidoEditar = int(input('Digite o ID do pedido a ser editado: '))
+                        for i in pedidos:
+                            if pedidoEditar == i:
+                                print(f'Pedido selecionado: {i}')
+
+
+
                 #Consultar Pedido(s)
                 case 3:
                     print('a')
