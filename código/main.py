@@ -33,11 +33,35 @@ while opcao != 4:
                 case 2:
                     
                     input('Precione enter para voltar à tela inicial! ')
+                    
                     continue
                 #Consultar Pedido(s)
                 case 3:
-                    
-                    input('Precione enter para voltar à tela inicial! ')
+                    print('''
+================================
+     Consultar Pedido(s)
+================================
+                    ''')
+                    from banco import pedidos
+                    busca = input("Digite o ID do pedido (ou Enter para listar todos): ")
+                    if busca == "":
+                        resultado = pedidos
+                    else:
+                        for i in pedidos:
+                            if i['id'] == busca.upper():
+                                resultado.append(i)
+                    if len(pedidos) == 0:
+                        print("Nenhum pedido encontrado.")
+                    else:
+                         for i in resultado:
+                            print(f"ID: {i['id']}")
+                            print(f"Cliente: {i['nome']}")
+                            print(f"Produto: {i['produto']}")
+                            print(f"Endereço: {i['endereco']}")
+                            print(f"Prioridade: {i['prioridade']}")
+                            print(f"Descrição: {i['descricao']}")
+                            print(f"Status: {i['status']}")
+                    input('Pressione Enter para voltar à tela inicial! ')
                     continue
                 #Gerenciar Pedido(s)
                 case 4:
