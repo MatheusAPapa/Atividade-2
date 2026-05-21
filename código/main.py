@@ -56,10 +56,24 @@ while opcao != 4:
                     id = funcoesEntregadores.gerar_idEntreg()
                     nome = str(input('Digite o nome do entregador: '))
                     cpf = str(input('Digite o cpf do entregador: '))
-                    veiculo = str(input('Digite o veículo que o entregador usará'))
+                    veiculo = str(input('''
+    Opções de veículos disponíveis:
+    1ª - Carro               
+    2ª - Moto                           
+    3ª - Van      
+    4ª - Caminhão                             
+                                        
+Digite o veículo que o entregador usará: '''))
+                    while veiculo not in ['carro', 'moto', 'van', 'caminhao', 'caminhão']:
+                        veiculo = str(input('Digite um veículo válido')).lower()
+
                     disponibilidade = 'Disponível'
 
                     funcoesEntregadores.cadastrarEntrg(id, nome, cpf, veiculo, disponibilidade)
+                    input('\nEntregador cadastrado! Precione enter para voltar à tela inicial! ')
+                case 3:
+                    funcoesEntregadores.lsitarEntrg()
+                    input('\nPrecione enter para voltar à tela inicial! ')
 
         case 3:
             menu.menuOperacoes()
