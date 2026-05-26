@@ -37,9 +37,10 @@ def menuEntregadores():
           
     1 - Cadastrar Entregador
     2 - Editar Entregador
-    3 - Consultar Entregadores disponiveis
-    4 - Remover/Suspender Entregador
-    5 - Voltar a tela inicial  
+    3 - Listar entregadores
+    4 - Consultar Entregadores disponiveis
+    5 - Remover/Suspender Entregador
+    6 - Voltar a tela inicial  
  ''')
 
 def menuOperacoes():
