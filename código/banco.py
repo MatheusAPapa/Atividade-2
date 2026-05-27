@@ -1,3 +1,5 @@
+pedidos = []
+
 entregadores = []
 '''
 [0]: id - número de 4 dígitos
