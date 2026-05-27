@@ -1,10 +1,19 @@
 import os
-
 def menuInicial():
     os.system('cls')
     print('''
 ================================
-          FluxoNorte 
+         Fluxo Norte 
+================================
+    1 - Aba Administrador
+    2 - Aba Entregador
+ ''')
+ 
+def menuAdm():
+    os.system('cls')
+    print('''
+================================
+         Administrador 
 ================================
           
     1 - Pedidos
