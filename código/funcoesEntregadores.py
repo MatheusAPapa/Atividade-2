@@ -4,13 +4,14 @@ import banco
 def gerar_idEntreg():
     id = random.randint(1000, 9999)
     return id
-def cadastrarEntrg(id_entregador, nome_entregador, cpf_entregador, veiculo_entregador, disponibilidade_entregador='D'):
+def cadastrarEntrg(id_entregador, nome_entregador, cpf_entregador, veiculo_entregador, disponibilidade_entregador='D', status="A"):
     entregador = {
         "id": id_entregador,
         "nome": nome_entregador,
         "cpf": cpf_entregador,
         "veiculo": veiculo_entregador,
-        "status": disponibilidade_entregador
+        "disponibilidade": disponibilidade_entregador,
+        "status": status
     }
 
     banco.entregadores.append(entregador)
@@ -59,8 +60,6 @@ def editarEntrg (entregador):
             print('Veículo atualizado com sucesso!')
             input('\nPrecione enter para voltar! ')
 
-
-
 def listarEntrg ():
     os.system('cls')
     print('''
@@ -72,20 +71,47 @@ def listarEntrg ():
         print("Nenhum entregador cadastrado.")
         return
     for e in banco.entregadores:
-        if e['status'] == 'D':
+        if e['disponibilidade'] == 'D':
             disponibilidade = 'Disponível'
-        elif e['status'] == 'E':
+        elif e['disponibilidade'] == 'E':
             disponibilidade = 'Em rota de entrega'
-        elif e['status'] == 'S':
+        elif e['disponibilidade'] == 'S':
             disponibilidade = 'Suspenso'
+        
+        if e['status'] == 'A':
+            status = 'Ativo'
+        elif e['status'] == 'S':
+            status = 'Suspenso'
 
-        print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Status: {disponibilidade}")
+        print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Disponibilidade: {disponibilidade} | Status: {e['status']}")
 
 def listarEntrgDisp ():
     if len(banco.entregadores) == 0:
         print("Nenhum entregador cadastrado.")
         return
     for e in banco.entregadores:
-        if e['status'].upper() == 'D':
+        if e['disponibilidade'].upper() == 'D' and e['status'] == 'A':
             disponibilidade = 'Disponível'
-            print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Status: {disponibilidade}")
+            print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Disponibilidade: {disponibilidade}")
+
+def gerenciarEntreg (entregador, acao):
+    match acao:
+        #remover
+        case 1:
+            banco.entregadores.remove(entregador)
+            print('Entregador removido com sucesso!')
+        #suspender
+        case 2:
+            if entregador['status'] == 'S':
+                print('Entregador já está suspenso!')
+            else:
+                entregador['status'] = 'S'
+                print(f"Entregador {entregador['nome']} suspenso!")
+        case 3:  # Reativar
+            if entregador['status'] == 'A':
+                print('Entregador já está ativo!')
+            else:
+                entregador['status'] = 'A'
+                print(f"Entregador {entregador['nome']} reativado!")
+        case 4:
+            print('Operação cancelada.')
