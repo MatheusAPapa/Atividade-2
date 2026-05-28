@@ -6,6 +6,7 @@ import funcoesPedidos
 
 opcao1 = 1
 opcao2 = 1
+# Escolha de aba
 while opcao1 != 2:
     menu.menuInicial()
     opcao = int(input('Digita a sua escolha: '))
@@ -23,7 +24,7 @@ while opcao1 != 2:
                         menu.menuPedidos()
                         escolha = int(input('Digita a sua escolha: '))
                         match escolha:
-                            #Cadastrar Pedido(s)
+                            # Cadastrar Pedido(s)
                             case 1:
                                 print('''
 ================================
@@ -40,13 +41,13 @@ while opcao1 != 2:
                                 input('Precione Enter para concluir o cadastro.')
                         
 
-                            #Editar Pedido(s)
+                            # Editar Pedido(s)
                             case 2:
                                 
                                 input('Precione enter para voltar à tela inicial! ')
                                 
                                 continue
-                            #Consultar Pedido(s)
+                            # Consultar Pedido(s)
                             case 3:
                                 print('''
 ================================
@@ -82,34 +83,7 @@ while opcao1 != 2:
       Gerenciar Pedido(s)
 ================================
                                 ''')
-                                from banco import pedidos
-                                busca = input("Digite o ID do pedido (ou Enter para listar todos): ")
-                                if busca == "":
-                                    resultado = pedidos
-                                else:
-                                    for i in pedidos:
-                                        if i['id'] == busca.upper():
-                                            resultado.append(i)
-                                if len(pedidos) == 0:
-                                    print("Nenhum pedido encontrado.")
-                                else:
-                                    for i in resultado:
-                                        print(f"ID: {i['id']}")
-                                        print(f"Cliente: {i['nome']}")
-                                        print(f"Produto: {i['produto']}")
-                                        print(f"Endereço: {i['endereco']}")
-                                        print(f"Prioridade: {i['prioridade']}")
-                                        print(f"Descrição: {i['descricao']}")
-                                        print(f"Status: {i['status']}")
-                                print(f"Status atual: {i['status']}")
-                                print("1 - Pendente  2 - Em Rota  3 - Entregue  4 - Cancelado")
-                                opcoes = {'1': 'Pendente', '2': 'Em Rota', '3': 'Entregue', '4': 'Cancelado'}
-
-                                escolha = input("Novo status: ")
-                                if escolha not in opcoes:
-                                    escolha = input("Novo status: ")
-                                pedido['status'] = opcoes[escolha]
-                                print("Status atualizado!")
+                                
                                 
                                 input('Pressione Enter para voltar à tela inicial! ')
                                 
