@@ -19,3 +19,8 @@ entregadores = []
 [3]: veículo que entregador usará
 [4]: Status(D - disponível, E - em entrega, S - suspenso)
 '''
+LIMITE_PEDIDOS_ENTREGADOR = 5
+
+status_validos = ['pendente', 'em rota', 'entregue', 'cancelado']
+
+veiculos_permitidos = ['carro', 'van', 'moto']

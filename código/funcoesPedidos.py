@@ -1,5 +1,7 @@
 import random
 from banco import pedidos
+import utilidade
+import banco
 
 # Gera o ID unico do pedido
 def gerar_idPedido():
@@ -32,119 +34,172 @@ def cadastrarPedido(idPedido,nomeCliente,prod,ender,priorid,desc,stats):
     pedidos.append(pedido)
     return pedido
 
-# Busca pedido pelo ID
-def buscarPedidoPorId(idBusca):
-    idBusca = idBusca.strip().upper()
-    for p in pedidos:
-        if p['id'] == idBusca:
-            return p
-    return None
+def alterar_status():
+    id_pedido = input("ID do Pedido: ").strip().upper()
+ 
+    if id_pedido not in banco.pedidos:
+        print("Pedido não encontrado.")
+        
+        return
+ 
+    pedido = banco.pedidos[id_pedido]
+ 
+    if pedido["status"] == "Cancelado":
+        print("Pedido cancelado não pode ser alterado.")
 
-# Lista pedidos
-def listaPedidos(filtro:None):
-    resultado = []
-    for p in pedidos:
-        if filtro is None or p['status'] == filtro:
-            resultado.append(p)
-    return resultado
+        return
+ 
+    print(f"Status atual: {pedido['status']}")
+    print("Novo status: [1] Pendente  [2] Em Rota  [3] Entregue")
+    opcao = input("Escolha: ").strip()
+    mapa = {"1": "Pendente", "2": "Em Rota", "3": "Entregue"}
+ 
+    if opcao not in mapa:
+        print("Opção inválida.")
+        
+        return
+ 
+    novo_status = mapa[opcao]
+ 
+    # Se marcado como Entregue, verifica se libera o entregador
+    if novo_status == "Entregue" and pedido["id_entregador"]:
+        id_ent = pedido["id_entregador"]
+        if id_ent in banco.entregadores:
+            ativos = pedidos_entregador(id_ent)
+            if ativos <= 1:
+                banco.entregadores[id_ent]["disponivel"] = True
+ 
+    pedido["status"] = novo_status
+    print(f"Status atualizado para '{novo_status}'.")
 
-# Listar pedidos por prioridade: Alta ou baixa
-def listaPrioridade():
-    altos   = []
-    normais = []
-    for p in pedidos:
-        if p['status'] == 'Pendente' and p['id_entregador'] is None:
-            if p['prioridade'] == 'Alta':
-                altos.append(p)
-            else:
-                normais.append(p)
-    return altos + normais
+def cancelar_pedido():
+    id_pedido = input("ID do Pedido: ").strip().upper()
+ 
+    if id_pedido not in banco.pedidos:
+        print("Pedido não encontrado.")
+        
+        return
+ 
+    pedido = banco.pedidos[id_pedido]
+ 
+    if pedido["status"] == "Cancelado":
+        print("Pedido já está cancelado.")
+    
+        return
+ 
+    confirma = input(f"Confirmar cancelamento do pedido {id_pedido}? (s/n): ").strip().lower()
+    if confirma != "s":
+        print("Cancelamento abortado.")
 
-def editarPedido(pedido, campo, novoValor):
-    """Edita um campo do pedido. Pedidos cancelados não podem ser editados."""
-    if pedido['status'] == 'Cancelado':
-        return False, 'Pedido cancelado não pode ser editado.'
-    pedido[campo] = novoValor
-    return True, 'Campo atualizado com sucesso!'
+        return
  
+    # Remove associação com o entregador se houver
+    id_ent = pedido["id_entregador"]
+    if id_ent and id_ent in banco.entregadores:
+        lista = banco.entregadores[id_ent]["pedidos"]
+        if id_pedido in lista:
+            lista.remove(id_pedido)
+        if pedidos_entregador(id_ent) == 0:
+            banco.entregadores[id_ent]["disponivel"] = True
  
-def alterarStatusPedido(pedido, novoStatus):
-    """
-    Altera o status do pedido.
-    Regra: pedido cancelado não pode ser reativado (decisão do time).
-    """
-    if pedido['status'] == 'Cancelado':
-        return False, 'Pedido cancelado não pode ter o status alterado.'
-    pedido['status'] = novoStatus
-    # Se entregou, libera o entregador
-    if novoStatus == 'Entregue' and pedido['id_entregador'] is not None:
-        _liberar_entregador(pedido)
-    return True, f"Status atualizado para '{novoStatus}'."
- 
- 
-def cancelarPedido(pedido):
-    """
-    Cancela o pedido.
-    Regra: pedido já cancelado não pode ser cancelado novamente.
-    Regra: pedido cancelado nunca pode ser reativado (decisão do time).
-    """
-    if pedido['status'] == 'Cancelado':
-        return False, 'Pedido já está cancelado.'
-    if pedido['id_entregador'] is not None:
-        _liberar_entregador(pedido)
-    pedido['status'] = 'Cancelado'
-    return True, 'Pedido cancelado com sucesso.'
- 
- 
-# ---------- ASSOCIAÇÃO DE ENTREGADOR ----------
- 
-def associarEntregador(pedido, entregador):
-    """
-    Associa um entregador ao pedido.
-    Regras:
-    - Pedido deve estar Pendente
-    - Entregador não pode estar Suspenso
-    - Entregador não pode ter mais de MAX_PEDIDOS_POR_ENTREGADOR pedidos simultâneos
-    - Pedido não pode já ter entregador
-    """
-    if pedido['status'] == 'Cancelado':
-        return False, 'Pedido cancelado não pode receber entregador.'
-    if pedido['status'] == 'Entregue':
-        return False, 'Pedido já foi entregue.'
-    if pedido['id_entregador'] is not None:
-        return False, 'Pedido já possui entregador. Remova a associação antes.'
-    if entregador['status'] == 'S':
-        return False, 'Entregador está suspenso.'
-    if len(entregador['pedidos']) >= MAX_PEDIDOS_POR_ENTREGADOR:
-        return False, f'Entregador já possui {MAX_PEDIDOS_POR_ENTREGADOR} pedidos (limite máximo).'
- 
-    pedido['id_entregador']  = entregador['id']
-    pedido['status']         = 'Em Rota'
-    entregador['pedidos'].append(pedido['id'])
-    entregador['status']     = 'E'
-    return True, 'Entregador associado com sucesso!'
- 
- 
-def removerEntregador(pedido):
-    """Remove a associação do entregador, voltando pedido para Pendente."""
-    if pedido['id_entregador'] is None:
-        return False, 'Pedido não possui entregador atribuído.'
-    if pedido['status'] == 'Entregue':
-        return False, 'Pedido já entregue, não é possível remover o entregador.'
-    _liberar_entregador(pedido)
-    pedido['status'] = 'Pendente'
-    return True, 'Entregador removido. Pedido voltou para Pendente.'
- 
- 
-# ---------- AUXILIAR INTERNO ----------
+    pedido["status"] = "Cancelado"
+    pedido["id_entregador"] = ""
+    print(f"Pedido {id_pedido} cancelado.")
 
-def _liberar_entregador(pedido):
-    """Remove o pedido da lista do entregador e atualiza seu status se necessário."""
-    for e in banco.entregadores:
-        if e['id'] == pedido['id_entregador']:
-            if pedido['id'] in e['pedidos']:
-                e['pedidos'].remove(pedido['id'])
-            if len(e['pedidos']) == 0:
-                e['status'] = 'D'
-            break
-    pedido['id_entregador'] = None
+def associar_entregador():
+    id_pedido = input("ID do Pedido: ").strip().upper()
+ 
+    if id_pedido not in banco.pedidos:
+        print("Pedido não encontrado.")
+
+        return
+ 
+    pedido = banco.pedidos[id_pedido]
+ 
+    if pedido["status"] in ("Cancelado", "Entregue"):
+        print(f"Pedido com status '{pedido['status']}' não pode receber entregador.")
+        
+        return
+ 
+    if pedido["id_entregador"]:
+        print(f"Pedido já possui entregador: {pedido['id_entregador']}")
+        
+        return
+ 
+    id_ent = input("ID do Entregador: ").strip()
+ 
+    if id_ent not in banco.entregadores:
+        print("Entregador não encontrado.")
+    
+        return
+ 
+    entregador = banco.entregadores[id_ent]
+ 
+    if not entregador["disponivel"]:
+        print("Entregador está indisponível no momento.")
+        return
+ 
+    ativos = pedidos_entregador(id_ent)
+    if ativos >= banco.LIMITE_PEDIDOS_ENTREGADOR:
+        print(f"Entregador atingiu o limite de {banco.LIMITE_PEDIDOS_ENTREGADOR} pedidos em rota.")
+
+        return
+ 
+    pedido["id_entregador"] = id_ent
+    pedido["status"] = "Em Rota"
+    entregador["pedidos"].append(id_pedido)
+ 
+    # Bloqueia disponibilidade se atingiu o limite
+    if pedidos_entregador(id_ent) >= banco.LIMITE_PEDIDOS_ENTREGADOR:
+        entregador["disponivel"] = False
+ 
+    print(f"Pedido {id_pedido} associado ao entregador {id_ent} ({entregador['nome']}).")
+
+def remover_associacao():
+    id_pedido = input("ID do Pedido: ").strip().upper()
+ 
+    if id_pedido not in banco.pedidos:
+        print("  [ERRO] Pedido não encontrado.")
+        
+        return
+ 
+    pedido = banco.pedidos[id_pedido]
+ 
+    if not pedido["id_entregador"]:
+        print("Pedido não possui entregador associado.")
+
+        return
+ 
+    id_ent = pedido["id_entregador"]
+ 
+    if id_ent in banco.entregadores:
+        lista = banco.entregadores[id_ent]["pedidos"]
+        if id_pedido in lista:
+            lista.remove(id_pedido)
+        if pedidos_entregador(id_ent) < banco.LIMITE_PEDIDOS_ENTREGADOR:
+            banco.entregadores[id_ent]["disponivel"] = True
+ 
+    pedido["id_entregador"] = ""
+    pedido["status"] = "Pendente"
+    print(f"Associação removida. Pedido {id_pedido} voltou para 'Pendente'.")
+
+def consultar_por_status(status):
+    ids = [p for p in banco.pedidos if banco.pedidos[p]["status"] == status]
+    ids_ordenados = pedidos_por_prioridade(ids)
+ 
+    if not ids_ordenados:
+        print(f"  Nenhum pedido com status '{status}'.")
+    else:
+        for ped in ids_ordenados:
+            print(banco.pedidos[ped])
+    
+ 
+ 
+def buscar_pedido_por_id():
+    id_pedido = input("ID do Pedido: ").strip().upper()
+ 
+    if id_pedido in banco.pedidos:
+        print(banco.pedidos[id_pedido])
+    else:
+        print("Pedido não encontrado.")
+    

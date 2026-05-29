@@ -89,3 +89,26 @@ def listarEntrgDisp ():
         if e['status'].upper() == 'D':
             disponibilidade = 'Disponível'
             print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Status: {disponibilidade}")
+
+def entregas_por_entregador():
+    id_ent = input("  ID do Entregador: ").strip()
+ 
+    if id_ent not in banco.entregadores:
+        print("  [ERRO] Entregador não encontrado.")
+        return
+ 
+    ent = banco.entregadores[id_ent]
+    print(f"\nEntregador : {ent['nome']}")
+    print(f"Veículo      : {ent['veiculo']}")
+    print(f"Disponível   : {'Sim' if ent['disponivel'] else 'Não'}")
+    print(f"Total de pedidos associados: {len(ent['pedidos'])}")
+ 
+    if not ent["pedidos"]:
+        print("  Nenhuma entrega registrada.")
+    else:
+        for ped in ent["pedidos"]:
+            if ped in banco.pedidos:
+                print(banco.pedidos[ped])
+            else:
+                print(f"Pedido {ped} não encontrado no sistema.")
+
