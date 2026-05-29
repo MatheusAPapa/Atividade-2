@@ -1,4 +1,4 @@
-pedidos = []
+pedidos = {}
 '''
     pedido = {
         'id': idPedido,
@@ -11,7 +11,7 @@ pedidos = []
     }
     pedidos.append(pedido)
 '''
-entregadores = []
+entregadores = {}
 '''
 [0]: id - número de 4 dígitos
 [1]: nome do entregador

@@ -1,114 +1,175 @@
-import os
+# ============================================================
+#   FUNÇÕES DE ENTREGADORES - FluxoNorte
+#   Cadastro, edição, consulta e gerenciamento de entregadores
+# ============================================================
+
 import random
-import banco 
+import banco
+import utilidade
+
+# ============================================================
+# GERAÇÃO DE ID
+# ============================================================
+
 def gerar_idEntreg():
-    id = random.randint(1000, 9999)
-    return id
-def cadastrarEntrg(id_entregador, nome_entregador, cpf_entregador, veiculo_entregador, disponibilidade_entregador='D'):
+    """Gera um ID único de 4 dígitos para o entregador."""
+    while True:
+        novo_id = str(random.randint(1000, 9999))
+        if novo_id not in banco.entregadores:
+            return novo_id
+
+# ============================================================
+# CADASTRO
+# ============================================================
+
+def cadastrarEntrg(id_entregador, nome_entregador, cpf_entregador, veiculo_entregador):
+    """Cadastra um novo entregador no banco de dados."""
     entregador = {
-        "id": id_entregador,
-        "nome": nome_entregador,
-        "cpf": cpf_entregador,
-        "veiculo": veiculo_entregador,
-        "status": disponibilidade_entregador
+        'id'     : id_entregador,
+        'nome'   : nome_entregador,
+        'cpf'    : cpf_entregador,
+        'veiculo': veiculo_entregador,
+        'status' : 'D',        # D = Disponível, E = Em entrega, S = Suspenso
+        'pedidos': []
     }
+    banco.entregadores[id_entregador] = entregador
 
-    banco.entregadores.append(entregador)
+# ============================================================
+# EDIÇÃO
+# ============================================================
 
-def editarEntrg (entregador):
+def editarEntrg(entregador):
+    """Permite editar os dados de um entregador."""
     print('''
 ================================
          Editar Dados
-================================  
-    1 - Nome
-    2 - CPF
-    3 - veículo
-    4 - Voltar para o menu anteriorm
+================================
+  1 - Nome
+  2 - CPF
+  3 - Veículo
+  4 - Voltar
     ''')
-    opcaoEditar = int(input('Digite sua escolha: '))
-    match opcaoEditar:
-        case 1:
-            novoNome = str(input('Digite o nome do entregador: '))
-            entregador['nome'] = novoNome
-            print('Nome atualizado com sucesso!')
-            input('\nPrecione enter para voltar! ')
-        case 2:
-            novoCpf = int(input('Digite o nome do entregador: '))
-            entregador['cpf'] = novoCpf
-            print('CPF atualizado com sucesso!')
-            input('\nPrecione enter para voltar! ')
-        case 3:
+    opcao = input('  Digite sua escolha: ').strip()
+    match opcao:
+        case '1':
+            novo = input('  Novo nome: ').strip()
+            if novo:
+                entregador['nome'] = novo
+                print('  Nome atualizado!')
+        case '2':
+            novo = input('  Novo CPF: ').strip()
+            if novo:
+                entregador['cpf'] = novo
+                print('  CPF atualizado!')
+        case '3':
             print('''
-    Opções de veículos disponíveis:
-    1 - Carro               
-    2 - Moto                           
-    3 - Van      
-    4 - Caminhão                             
-                ''') 
-            novoVeiculo = int(input('Digite o novo tipo veículo do entregador: '))
-            match novoVeiculo:
-                case 1:
-                    novoVeiculo = 'carro'
-                case 2:
-                    novoVeiculo ='moto'
-                case 3:
-                    novoVeiculo ='van'
-                case 4:
-                    novoVeiculo = 'caminhao'
-            entregador['veiculo'] = novoVeiculo
-            print('Veículo atualizado com sucesso!')
-            input('\nPrecione enter para voltar! ')
+  Veículos disponíveis:
+  1 - Carro
+  2 - Moto
+  3 - Van
+  4 - Caminhão
+            ''')
+            op = input('  Escolha: ').strip()
+            mapa = {'1': 'carro', '2': 'moto', '3': 'van', '4': 'caminhao'}
+            if op in mapa:
+                entregador['veiculo'] = mapa[op]
+                print('  Veículo atualizado!')
+            else:
+                print('  Opção inválida.')
+        case '4':
+            return
+        case _:
+            print('  Opção inválida.')
+    input('\n  Pressione Enter para continuar. ')
 
+# ============================================================
+# SUSPENDER / REATIVAR
+# ============================================================
 
+def suspenderOuReativarEntrg():
+    """Suspende ou reativa um entregador."""
+    id_ent = input('  ID do entregador: ').strip()
 
-def listarEntrg ():
-    os.system('cls')
+    if id_ent not in banco.entregadores:
+        print('  Entregador não encontrado.')
+        input('\n  Pressione Enter para voltar. ')
+        return
+
+    ent = banco.entregadores[id_ent]
+
+    if ent['status'] == 'S':
+        ent['status'] = 'D'
+        print(f"  Entregador {ent['nome']} reativado com sucesso.")
+    elif ent['status'] == 'E':
+        print('  Entregador está em rota de entrega. Finalize os pedidos antes de suspender.')
+    else:
+        ent['status'] = 'S'
+        print(f"  Entregador {ent['nome']} suspenso.")
+
+    input('\n  Pressione Enter para continuar. ')
+
+# ============================================================
+# LISTAGENS
+# ============================================================
+
+def _status_label(s):
+    if s == 'D': return 'Disponível'
+    if s == 'E': return 'Em rota de entrega'
+    if s == 'S': return 'Suspenso'
+    return s
+
+def listarEntrg():
+    """Lista todos os entregadores cadastrados."""
+    utilidade.limpar_tela()
     print('''
 ================================
-       Todos Entregadores
+       Todos os Entregadores
 ================================
     ''')
-    if len(banco.entregadores) == 0:
-        print("Nenhum entregador cadastrado.")
+    if not banco.entregadores:
+        print('  Nenhum entregador cadastrado.')
         return
-    for e in banco.entregadores:
+    for e in banco.entregadores.values():
+        print(f"  ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | "
+              f"Veículo: {e['veiculo']} | Status: {_status_label(e['status'])}")
+
+def listarEntrgDisp():
+    """Lista apenas os entregadores disponíveis."""
+    if not banco.entregadores:
+        print('  Nenhum entregador cadastrado.')
+        return
+    encontrou = False
+    for e in banco.entregadores.values():
         if e['status'] == 'D':
-            disponibilidade = 'Disponível'
-        elif e['status'] == 'E':
-            disponibilidade = 'Em rota de entrega'
-        elif e['status'] == 'S':
-            disponibilidade = 'Suspenso'
-
-        print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Status: {disponibilidade}")
-
-def listarEntrgDisp ():
-    if len(banco.entregadores) == 0:
-        print("Nenhum entregador cadastrado.")
-        return
-    for e in banco.entregadores:
-        if e['status'].upper() == 'D':
-            disponibilidade = 'Disponível'
-            print(f"ID: {e['id']} | Nome: {e['nome']} | CPF: {e['cpf']} | Veículo: {e['veiculo']} | Status: {disponibilidade}")
+            ativos = utilidade.pedidos_ativos_entregador(e['id'])
+            print(f"  ID: {e['id']} | Nome: {e['nome']} | Veículo: {e['veiculo']} | "
+                  f"Em rota: {ativos}/{banco.LIMITE_PEDIDOS_ENTREGADOR}")
+            encontrou = True
+    if not encontrou:
+        print('  Nenhum entregador disponível no momento.')
 
 def entregas_por_entregador():
-    id_ent = input("  ID do Entregador: ").strip()
- 
-    if id_ent not in banco.entregadores:
-        print("  [ERRO] Entregador não encontrado.")
-        return
- 
-    ent = banco.entregadores[id_ent]
-    print(f"\nEntregador : {ent['nome']}")
-    print(f"Veículo      : {ent['veiculo']}")
-    print(f"Disponível   : {'Sim' if ent['disponivel'] else 'Não'}")
-    print(f"Total de pedidos associados: {len(ent['pedidos'])}")
- 
-    if not ent["pedidos"]:
-        print("  Nenhuma entrega registrada.")
-    else:
-        for ped in ent["pedidos"]:
-            if ped in banco.pedidos:
-                print(banco.pedidos[ped])
-            else:
-                print(f"Pedido {ped} não encontrado no sistema.")
+    """Exibe todos os pedidos associados a um entregador."""
+    id_ent = input('  ID do Entregador: ').strip()
 
+    if id_ent not in banco.entregadores:
+        print('  Entregador não encontrado.')
+        input('\n  Pressione Enter para voltar. ')
+        return
+
+    ent = banco.entregadores[id_ent]
+    print(f"\n  Entregador : {ent['nome']}")
+    print(f"  Veículo    : {ent['veiculo']}")
+    print(f"  Status     : {_status_label(ent['status'])}")
+    print(f"  Total de pedidos associados: {len(ent['pedidos'])}")
+
+    if not ent['pedidos']:
+        print('  Nenhuma entrega registrada.')
+    else:
+        for pid in ent['pedidos']:
+            if pid in banco.pedidos:
+                utilidade.exibir_pedido(banco.pedidos[pid])
+            else:
+                print(f"  [!] Pedido {pid} não encontrado no sistema.")
+
+    input('\n  Pressione Enter para continuar. ')
